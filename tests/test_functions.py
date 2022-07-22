@@ -1,17 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import cdist
-from pillars import sum_as_string, rdist
-from pillars.emdsa import emd_distance
+from pillars import rdist_parallel
 
-
-def test_sum_as_string():
-
-	a = 10
-	b = 20
-
-	res_str = sum_as_string(a, b)
-
-	assert(type(res_str) == str)
 
 
 def test_rdist():
@@ -23,10 +13,9 @@ def test_rdist():
 	ncols_b = 10
 
 	res_cdist = cdist(a, b)
-	res_rdist = rdist(a.flatten(), b.flatten(), ncols_a, ncols_b)
+	res_rdist = rdist_parallel(a, b)
 
-	assert(len(res_rdist) == 200)
-	np.isclose(res_cdist.flatten(), res_rdist)
+	np.isclose(res_cdist, res_rdist)
 
 
 def test_emd_distance():

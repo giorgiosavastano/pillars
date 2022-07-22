@@ -9,4 +9,6 @@ name = "pillars"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = { version = "0.16.5", features = ["extension-module"] }
+pyo3 = { version = "0.16.5", features = ["extension-module", "multiple-pymethods"] }
+ndarray = { version="0.15.4", features = ["rayon"]}
+numpy = "0.16.2"

@@ -1,10 +1,10 @@
 import numpy as np
 from scipy.optimize import linear_sum_assignment
-from pillars import rdist
+from pillars import rdist_parallel
 
 
 def emd_distance(x, y):
 
-	cost_matrix = np.asarray(rdist(x.flatten(), y.flatten(), x.shape[1], y.shape[1]), dtype=float).reshape(x.shape[0], y.shape[0])
+	cost_matrix = rdist_parallel(x, y)
 	row_ind, col_ind = linear_sum_assignment(cost_matrix)
 	return cost_matrix[row_ind, col_ind].sum()
