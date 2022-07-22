@@ -2,7 +2,4 @@
 # optional: include the documentation from the Rust module
 from .pillars import rdist_parallel
 
-
-__all__ = [
-    "rdist_parallel",
-]
+__all__ = ["rdist_parallel"]

@@ -4,7 +4,7 @@ use ndarray::prelude::*;
 use pyo3::{pymodule, types::PyModule, PyResult, Python};
 
 #[pymodule]
-fn rust_cdist(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     fn euclidean_distance(v1: &ArrayView1<f64>, v2: &ArrayView1<f64>) -> f64 {
         v1.iter()
@@ -29,17 +29,17 @@ fn rust_cdist(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
 
 
-#[pyfn(m)]
-fn rdist_parallel<'py>(
-        py: Python<'py>,
-        x: PyReadonlyArray2<'py, f64>,
-        y: PyReadonlyArray2<'py, f64>,
-    ) -> &'py PyArray2<f64> {
-        let x = x.as_array();
-        let y = y.as_array();
-        let z = euclidean_rdist_parallel(x, y);
-        z.into_pyarray(py)
-    }
+    #[pyfn(m)]
+    fn rdist_parallel<'py>(
+            py: Python<'py>,
+            x: PyReadonlyArray2<'py, f64>,
+            y: PyReadonlyArray2<'py, f64>,
+        ) -> &'py PyArray2<f64> {
+            let x = x.as_array();
+            let y = y.as_array();
+            let z = euclidean_rdist_parallel(x, y);
+            z.into_pyarray(py)
+        }
 
-    Ok(())
+        Ok(())
 }

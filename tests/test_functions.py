@@ -1,16 +1,14 @@
 import numpy as np
 from scipy.spatial.distance import cdist
 from pillars import rdist_parallel
+from pillars.emdsa import emd_distance
 
 
 
 def test_rdist():
 
-	a = np.arange(100).reshape(10, 10)
-	b = np.arange(200).reshape(20, 10)
-
-	ncols_a = 10
-	ncols_b = 10
+	a = np.linspace(0, 10, 100).reshape(10, 10)
+	b = np.linspace(0, 10, 200).reshape(20, 10)
 
 	res_cdist = cdist(a, b)
 	res_rdist = rdist_parallel(a, b)
