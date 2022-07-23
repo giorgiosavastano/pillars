@@ -1,4 +1,4 @@
-use numpy::{IntoPyArray, PyArray2, PyArray3, PyReadonlyArray2, PyReadonlyArray3};
+use numpy::{IntoPyArray, PyArray2, PyReadonlyArray2};
 use ndarray::Zip;
 use ndarray::prelude::*;
 use pyo3::{pymodule, types::PyModule, PyResult, Python};
@@ -31,11 +31,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         c
     }
 
-    fn compute_euclidean_rdist_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array3<f64> {
-        let mut c = Array3::<f64>::zeros((y.shape()[0], x.shape()[0], y.shape()[1]));
-        Zip::from(y.axis_iter(Axis(0))).and(c.axis_iter_mut(Axis(0))).par_for_each(|mat_y, mut mat_c| mat_c.assign(&euclidean_rdist_serial(mat_y, x)));
-        c
-    } 
+    fn 
 
 
     #[pyfn(m)]
@@ -59,18 +55,6 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
             let x = x.as_array();
             let y = y.as_array();
             let z = euclidean_rdist_serial(x, y);
-            z.into_pyarray(py)
-    }
-
-    #[pyfn(m)]
-    fn rdist_bulk<'py>(
-            py: Python<'py>,
-            x: PyReadonlyArray2<'py, f64>,
-            y: PyReadonlyArray3<'py, f64>,
-    ) -> &'py PyArray3<f64> {
-            let x = x.as_array();
-            let y = y.as_array();
-            let z = compute_euclidean_rdist_bulk(x, y);
             z.into_pyarray(py)
     }
 

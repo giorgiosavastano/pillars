@@ -1,4 +1,4 @@
-use numpy::{IntoPyArray, PyArray2, PyArray3, PyReadonlyArray2, PyReadonlyArray3};
+use numpy::{IntoPyArray, PyArray2, PyReadonlyArray2, };
 use ndarray::Zip;
 use ndarray::prelude::*;
 use pyo3::{pymodule, types::PyModule, PyResult, Python};
@@ -67,7 +67,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
             py: Python<'py>,
             x: PyReadonlyArray2<'py, f64>,
             y: PyReadonlyArray3<'py, f64>,
-    ) -> &'py PyArray3<f64> {
+    ) -> &'py PyArray2<f64> {
             let x = x.as_array();
             let y = y.as_array();
             let z = compute_euclidean_rdist_bulk(x, y);
