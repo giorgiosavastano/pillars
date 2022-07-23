@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import cdist
 from pillars import rdist_bulk
-from pillars.emdsa import rdist, emd_distance
+from pillars.emdsa import rdist, emd_distance, emd_distance_bulk_dask
 
 
 def test_rdist():
@@ -20,7 +20,9 @@ def test_emd_distance():
 
 	y = np.ones(shape=(11, 17)) * 11
 
-	emd_dist = emd_distance(x, y)
+	res_rdist = rdist(x, y, parallel=False)
+
+	emd_dist = emd_distance(res_rdist)
 
 	assert(emd_dist == 0.0)
 
@@ -31,3 +33,14 @@ def test_rdist_bulk():
 	res = rdist_bulk(x, y)
 
 	assert(res.shape == (y.shape[0], y.shape[1], x.shape[0]))
+
+def test_emd_distance_bulk():
+
+	x = np.random.rand(11, 17)
+	y = np.random.rand(100, 11, 17)
+
+	res = rdist_bulk(x, y)
+
+	emd_vals = emd_distance_bulk_dask(res)
+
+	assert(len(emd_vals)==res.shape[0])
