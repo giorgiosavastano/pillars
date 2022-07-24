@@ -29,6 +29,10 @@ def emd_distance(cost_matrix):
 
 
 def emd_distance_bulk_dask(cost_matrices):
+
+	from dask.distributed import Client
+	client = Client()
+	
 	results = []
 	for m in cost_matrices:
 		y = delayed(emd_distance)(m)
