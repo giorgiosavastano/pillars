@@ -76,7 +76,9 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
             .partial_cmp(b)
             .expect("Elements must not be NaN."));
         assert!(n < res.len());
-        Array::from_vec(res[0..n].to_vec())
+        unsafe{
+            Array::from_vec(res.get_unchecked(0..n).to_vec())
+        }
     }
 
     fn classify_closest_n_bulk(x: ArrayView3<'_, f64>, y: ArrayView3<'_, f64>, n: usize) -> Array2<usize> {
