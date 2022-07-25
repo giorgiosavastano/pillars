@@ -66,7 +66,9 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         F: FnMut(&S::Elem, &S::Elem) -> Ordering,
     {
         let mut indices: Vec<usize> = (0..arr.len()).collect();
-        indices.sort_unstable_by(move |&i, &j| compare(&arr[i], &arr[j]));
+        unsafe {
+            indices.sort_unstable_by(move |&i, &j| compare(&arr.uget(i), &arr.uget(j)));
+        }
         indices
     }
 
