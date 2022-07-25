@@ -12,3 +12,5 @@ crate-type = ["cdylib"]
 pyo3 = { version = "0.16.5", features = ["extension-module", "multiple-pymethods"] }
 ndarray = { version="0.15.4", features = ["rayon"]}
 numpy = "0.16.2"
+pathfinding = "3.0.13"
+ordered-float = "3.0.0"

@@ -1,4 +1,5 @@
 import numpy as np
+import itertools
 from scipy.optimize import linear_sum_assignment
 from pillars import rdist_parallel, rdist_serial
 from dask import delayed, compute
@@ -35,4 +36,10 @@ def emd_distance_bulk_dask(cost_matrices):
 		results.append(y)
 	results = compute(*results)
 	return results
+
+def emd_distance_bulk_map(cost_matrices):
+	return np.asarray(list(map(emd_distance, cost_matrices)), dtype=float)
+
+def emd_distance_bulk_iter(cost_matrices):
+	return np.fromiter((emd_distance(xi) for xi in cost_matrices), float count=cost_matrices.shape[0])
 

@@ -1,6 +1,9 @@
 use numpy::{IntoPyArray, PyArray2, PyArray3, PyReadonlyArray2, PyReadonlyArray3};
 use ndarray::Zip;
 use ndarray::prelude::*;
+use pathfinding::prelude::{kuhn_munkres, Matrix, Weights};
+use ordered_float::OrderedFloat;
+
 use pyo3::{pymodule, types::PyModule, PyResult, Python};
 
 #[pymodule]
@@ -35,7 +38,20 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         let mut c = Array3::<f64>::zeros((y.shape()[0], x.shape()[0], y.shape()[1]));
         Zip::from(y.axis_iter(Axis(0))).and(c.axis_iter_mut(Axis(0))).par_for_each(|mat_y, mut mat_c| mat_c.assign(&euclidean_rdist_serial(mat_y, x)));
         c
-    } 
+    }
+
+
+    fn emd_dist_serial(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> f64 {
+        let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
+        Zip::from(x.rows()).and(c.rows_mut()).for_each(|row_x, mut row_c| row_c.assign(&euclidean_rdist_row(&row_x, &y)));
+
+        let costs = c.mapv(|elem| OrderedFloat(elem));
+
+        let weights = Matrix::from_rows(costs.rows()).unwrap();
+        let (emd_dist, assignments) = kuhn_munkres(&weights);
+        emd_dist.0
+    }
+   
 
 
     #[pyfn(m)]
