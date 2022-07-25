@@ -19,7 +19,20 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
           .sqrt()
     }
 
-    fn euclidean_rdist_row(x: &ArrayView1<'_, f64>, y: &ArrayView2<'_, f64>) -> Array1<f64> {
+    fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
+        let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
+
+        for (i, row_a) in x.outer_iter().enumerate() {
+            for (j, row_b) in y.outer_iter().enumerate() {
+                unsafe {
+                    *c.uget_mut([i, j]) = euclidean_distance(&row_a, &row_b);
+                }
+            }
+        }
+        c
+    }
+
+/*     fn euclidean_rdist_row(x: &ArrayView1<'_, f64>, y: &ArrayView2<'_, f64>) -> Array1<f64> {
         let z = Zip::from(y.rows()).map_collect(|row| euclidean_distance(&row, &x));
         z
     }
@@ -28,24 +41,26 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
         Zip::from(x.rows()).and(c.rows_mut()).par_for_each(|row_x, mut row_c| row_c.assign(&euclidean_rdist_row(&row_x, &y)));
         c
-    }
+    } */
 
-    fn euclidean_rdist_serial(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
-        let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
-        Zip::from(x.rows()).and(c.rows_mut()).for_each(|row_x, mut row_c| row_c.assign(&euclidean_rdist_row(&row_x, &y)));
-        c
-    }
+    // fn euclidean_rdist_serial(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
+    //     let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
+    //     Zip::from(x.rows()).and(c.rows_mut()).for_each(|row_x, mut row_c| row_c.assign(&euclidean_rdist_row(&row_x, &y)));
+    //     c
+    // }
 
     fn compute_euclidean_rdist_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array3<f64> {
         let mut c = Array3::<f64>::zeros((y.shape()[0], x.shape()[0], y.shape()[1]));
-        Zip::from(y.axis_iter(Axis(0))).and(c.axis_iter_mut(Axis(0))).par_for_each(|mat_y, mut mat_c| mat_c.assign(&euclidean_rdist_serial(mat_y, x)));
+        Zip::from(y.axis_iter(Axis(0))).and(c.axis_iter_mut(Axis(0))).par_for_each(|mat_y, mut mat_c| mat_c.assign(&euclidean_rdist_rust(mat_y, x)));
         c
     }
 
 
     fn emd_dist_serial(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> f64 {
-        let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
-        Zip::from(x.rows()).and(c.rows_mut()).for_each(|row_x, mut row_c| row_c.assign(&euclidean_rdist_row(&row_x, &y)));
+        // let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
+        // Zip::from(x.rows()).and(c.rows_mut()).for_each(|row_x, mut row_c| row_c.assign(&euclidean_rdist_row(&row_x, &y)));
+
+        let c = euclidean_rdist_rust(x, y);
 
         let costs = c.mapv(|elem| OrderedFloat(elem));
 
@@ -89,7 +104,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         c
     }
 
-    #[pyfn(m)]
+/*     #[pyfn(m)]
     fn rdist_parallel<'py>(
             py: Python<'py>,
             x: PyReadonlyArray2<'py, f64>,
@@ -111,7 +126,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
             let y = y.as_array();
             let z = euclidean_rdist_serial(x, y);
             z.into_pyarray(py)
-    }
+    } */
 
     #[pyfn(m)]
     fn rdist_bulk<'py>(
