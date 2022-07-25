@@ -3,7 +3,7 @@ use ndarray::Zip;
 use ndarray::prelude::*;
 use ndarray::Data;
 use std::cmp::Ordering;
-use pathfinding::prelude::{kuhn_munkres, Matrix};
+use pathfinding::prelude::{kuhn_munkres_min, Matrix};
 use ordered_float::OrderedFloat;
 
 use pyo3::{pymodule, types::PyModule, PyResult, Python};
@@ -50,7 +50,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         let costs = c.mapv(|elem| OrderedFloat(elem));
 
         let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec()).unwrap();
-        let (emd_dist, _assignments) = kuhn_munkres(&weights);
+        let (emd_dist, _assignments) = kuhn_munkres_min(&weights);
         emd_dist.0
     }
 
