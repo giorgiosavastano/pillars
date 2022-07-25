@@ -1,14 +1,6 @@
 import numpy as np
-from pillars import rdist_bulk, emd_bulk, emd_classify, emd_classify_bulk
+from pillars import emd_bulk, emd_classify, emd_classify_bulk
 
-
-def test_rdist_bulk():
-	x = np.random.rand(11, 17)
-	y = np.random.rand(100, 11, 17)
-
-	res = rdist_bulk(x, y)
-
-	assert(res.shape == (y.shape[0], y.shape[1], x.shape[0]))
 
 def test_emd_distance_bulk():
 
