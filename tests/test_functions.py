@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial.distance import cdist
-from pillars import rdist_bulk
+from pillars import rdist_bulk, emd_bulk
 from pillars.emdsa import rdist, emd_distance, emd_distance_bulk_dask
 
 

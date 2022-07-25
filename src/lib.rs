@@ -48,13 +48,13 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         let costs = c.mapv(|elem| OrderedFloat(elem));
 
         let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec()).unwrap();
-        let (emd_dist, assignments) = kuhn_munkres(&weights);
+        let (emd_dist, _assignments) = kuhn_munkres(&weights);
         emd_dist.0
     }
 
     fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array1<f64> {
         let mut c = Array1::<f64>::zeros(y.shape()[0]);
-        Zip::from(&mut c).and(y.axis_iter(Axis(0))).par_for_each(|mut c, mat_y| *c = emd_dist_serial(mat_y, x));
+        Zip::from(&mut c).and(y.axis_iter(Axis(0))).par_for_each(|c, mat_y| *c = emd_dist_serial(mat_y, x));
         c
     }
    
