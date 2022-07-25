@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial.distance import cdist
-from pillars import rdist_bulk, emd_bulk
+from pillars import rdist_bulk, emd_bulk, emd_classify, emd_classify_bulk
 from pillars.emdsa import rdist, emd_distance
 
 
@@ -42,3 +42,22 @@ def test_emd_distance_bulk():
 	emd_vals = emd_bulk(x, y)
 
 	assert(len(emd_vals)==y.shape[0])
+
+
+def test_emd_classify():
+
+	x = np.random.rand(11, 17)
+	y = np.random.rand(100, 11, 17)
+
+	emd_classes = emd_classify(x, y, 10)
+
+	assert(len(emd_classes)==10)
+
+def test_emd_classify_bulk():
+
+	x = np.random.rand(100, 11, 17)
+	y = np.random.rand(1000, 11, 17)
+
+	emd_classes = emd_classify_bulk(x, y, 10)
+
+	assert(emd_classes.shape==(x.shape[0], 10))
