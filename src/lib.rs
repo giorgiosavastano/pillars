@@ -47,7 +47,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array1<OrderedFloat<f64>> {
         let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
-        Zip::from(&mut c).and(y.axis_iter(Axis(0))).par_for_each(|c, mat_y| *c = emd_dist_serial(mat_y, x));
+        Zip::from(&mut c).and(y.axis_iter(Axis(0))).for_each(|c, mat_y| *c = emd_dist_serial(mat_y, x));
         c
     }
 
