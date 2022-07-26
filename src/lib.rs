@@ -1,8 +1,6 @@
 use numpy::{IntoPyArray, PyArray1, PyArray2, PyReadonlyArray2, PyReadonlyArray3};
 use ndarray::Zip;
 use ndarray::prelude::*;
-// use ndarray::Data;
-// use std::cmp::Ordering;
 use pathfinding::prelude::{kuhn_munkres_min, Matrix};
 use ordered_float::OrderedFloat;
 
@@ -11,21 +9,11 @@ use pyo3::{pymodule, types::PyModule, PyResult, Python};
 #[pymodule]
 fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
-/*     fn argsort_by<S, F>(arr: &ArrayBase<S, Ix1>, mut compare: F) -> Vec<usize>
-    where
-        S: Data,
-        F: FnMut(&S::Elem, &S::Elem) -> Ordering,
-    {
-        let mut indices: Vec<usize> = (0..arr.len()).collect();
-        unsafe {
-            indices.sort_unstable_by(move |&i, &j| compare(&arr.uget(i), &arr.uget(j)));
-        }
-        indices
-    } */
-
     fn argsort<T: Ord>(data: &[T]) -> Vec<usize> {
         let mut indices = (0..data.len()).collect::<Vec<_>>();
-        indices.sort_by_key(|&i| &data[i]);
+        unsafe{
+            indices.sort_by_key(|&i| data.get_unchecked(i));
+        }
         indices
     }
 
@@ -39,12 +27,11 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
         let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
-        for (i, row_a) in x.outer_iter().enumerate() {
-            for (j, row_b) in y.outer_iter().enumerate() {
+        for i in 0..x.nrows() {
+            for j in 0..y.nrows() {
                 unsafe {
-                    *c.uget_mut([i, j]) = euclidean_distance(&row_a, &row_b);
+                    *c.uget_mut([i, j]) = euclidean_distance(&x.row(i), &y.row(j));
                 }
-                
             }
         }
         c
@@ -66,12 +53,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     fn classify_closest_n(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>, n: usize) -> Array1<usize> {
         let c = compute_emd_bulk(x, y);
-
         let res = argsort(&c.to_vec());
-    
-/*         let res = argsort_by(&c, |a, b| a
-                                            .partial_cmp(b)
-                                            .expect("Elements must not be NaN.")); */
         assert!(n < res.len());
         unsafe{
             Array::from_vec(res.get_unchecked(0..n).to_vec())
