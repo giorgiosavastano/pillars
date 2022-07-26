@@ -1,8 +1,8 @@
 use numpy::{IntoPyArray, PyArray1, PyArray2, PyReadonlyArray2, PyReadonlyArray3};
 use ndarray::Zip;
 use ndarray::prelude::*;
-use ndarray::Data;
-use std::cmp::Ordering;
+// use ndarray::Data;
+// use std::cmp::Ordering;
 use pathfinding::prelude::{kuhn_munkres_min, Matrix};
 use ordered_float::OrderedFloat;
 
