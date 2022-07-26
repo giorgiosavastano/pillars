@@ -11,7 +11,7 @@ use pyo3::{pymodule, types::PyModule, PyResult, Python};
 #[pymodule]
 fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
-    fn argsort_by<S, F>(arr: &ArrayBase<S, Ix1>, mut compare: F) -> Vec<usize>
+/*     fn argsort_by<S, F>(arr: &ArrayBase<S, Ix1>, mut compare: F) -> Vec<usize>
     where
         S: Data,
         F: FnMut(&S::Elem, &S::Elem) -> Ordering,
@@ -20,6 +20,12 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         unsafe {
             indices.sort_unstable_by(move |&i, &j| compare(&arr.uget(i), &arr.uget(j)));
         }
+        indices
+    } */
+
+    fn argsort<T: Ord>(data: &[T]) -> Vec<usize> {
+        let mut indices = (0..data.len()).collect::<Vec<_>>();
+        indices.sort_by_key(|&i| &data[i]);
         indices
     }
 
@@ -35,32 +41,37 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
         for (i, row_a) in x.outer_iter().enumerate() {
             for (j, row_b) in y.outer_iter().enumerate() {
-                c[[i, j]] = euclidean_distance(&row_a, &row_b);
+                unsafe {
+                    *c.uget_mut([i, j]) = euclidean_distance(&row_a, &row_b);
+                }
+                
             }
         }
         c
     }
 
-    fn emd_dist_serial(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> f64 {
+    fn emd_dist_serial(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> OrderedFloat<f64> {
         let c = euclidean_rdist_rust(x, y);
-        let costs = c.mapv(|elem| OrderedFloat(elem));
+        let costs = c.mapv(|elem| OrderedFloat::from(elem));
         let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec()).unwrap();
         let (emd_dist, _assignments) = kuhn_munkres_min(&weights);
-        emd_dist.0
+        emd_dist
     }
 
-    fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array1<f64> {
-        let mut c = Array1::<f64>::zeros(y.shape()[0]);
+    fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array1<OrderedFloat<f64>> {
+        let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
         Zip::from(&mut c).and(y.axis_iter(Axis(0))).par_for_each(|c, mat_y| *c = emd_dist_serial(mat_y, x));
         c
     }
 
     fn classify_closest_n(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>, n: usize) -> Array1<usize> {
         let c = compute_emd_bulk(x, y);
+
+        let res = argsort(&c.to_vec());
     
-        let res = argsort_by(&c, |a, b| a
+/*         let res = argsort_by(&c, |a, b| a
                                             .partial_cmp(b)
-                                            .expect("Elements must not be NaN."));
+                                            .expect("Elements must not be NaN.")); */
         assert!(n < res.len());
         unsafe{
             Array::from_vec(res.get_unchecked(0..n).to_vec())
@@ -83,7 +94,8 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
             let x = x.as_array();
             let y = y.as_array();
             let z = compute_emd_bulk(x, y);
-            z.into_pyarray(py)
+            let c = z.mapv(|elem| f64::from(elem));
+            c.into_pyarray(py)
     }
 
     #[pyfn(m)]
