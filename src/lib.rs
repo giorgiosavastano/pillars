@@ -62,7 +62,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     fn classify_closest_n_bulk(x: ArrayView3<'_, f64>, y: ArrayView3<'_, f64>, n: usize) -> Array2<usize> {
         let mut c = Array2::<usize>::zeros((x.shape()[0], n));
-        Zip::from(c.rows_mut()).and(x.axis_iter(Axis(0))).par_for_each(|mut c, mat_x| c.assign(&classify_closest_n(mat_x, y, n)));
+        Zip::from(c.rows_mut()).and(x.axis_iter(Axis(0))).par_for_each(|mut c, mat_x| c += &classify_closest_n(mat_x, y, n));
         c
     }
 

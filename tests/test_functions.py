@@ -23,8 +23,8 @@ def test_emd_classify():
 
 def test_emd_classify_bulk():
 
-	x = np.random.rand(100, 11, 17)
-	y = np.random.rand(1000, 11, 17)
+	x = np.random.rand(100, 17, 11)
+	y = np.random.rand(1000, 17, 11)
 
 	emd_classes = emd_classify_bulk(x, y, 10)
 
