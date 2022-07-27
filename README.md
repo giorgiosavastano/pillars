@@ -1,3 +1,5 @@
-# PyllaRs
+# Pillars
 
-PyllaRs stands for PYthon Low Latency Algorithms in RuSt.
+## Blazingly fast algoritms in Python & Rust.
+
+Pillars is a blazingly fast algorithm library implemented in Python and Rust.
