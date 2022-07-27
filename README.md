@@ -1,1 +1,3 @@
-# pyllars (PYthon Low Latency Algorithms in RuSt)
+# PyllaRs
+
+PyllaRs stands for PYthon Low Latency Algorithms in RuSt.
