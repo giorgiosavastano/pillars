@@ -310,7 +310,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "pillars"
+name = "proc-macro2"
+version = "1.0.40"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd96a1e8ed2596c337f8eae5f24924ec83f5ad5ab21ea8e455d3566c69fbcaf7"
+dependencies = [
+ "unicode-ident",
+]
+
+[[package]]
+name = "pyllars"
 version = "0.1.0"
 dependencies = [
  "ndarray",
@@ -318,15 +327,6 @@ dependencies = [
  "ordered-float",
  "pathfinding",
  "pyo3",
-]
-
-[[package]]
-name = "proc-macro2"
-version = "1.0.40"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd96a1e8ed2596c337f8eae5f24924ec83f5ad5ab21ea8e455d3566c69fbcaf7"
-dependencies = [
- "unicode-ident",
 ]
 
 [[package]]

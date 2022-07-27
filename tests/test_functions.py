@@ -1,5 +1,5 @@
 import numpy as np
-from pillars import emd_bulk, emd_classify, emd_classify_bulk
+from pyllars import emd_bulk, emd_classify, emd_classify_bulk
 
 
 def test_emd_distance_bulk():

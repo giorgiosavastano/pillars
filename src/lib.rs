@@ -7,7 +7,7 @@ use ordered_float::OrderedFloat;
 use pyo3::{pymodule, types::PyModule, PyResult, Python};
 
 #[pymodule]
-fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+fn pyllars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     fn argsort<T: Ord>(data: &[T]) -> Vec<usize> {
         let mut indices = (0..data.len()).collect::<Vec<_>>();
