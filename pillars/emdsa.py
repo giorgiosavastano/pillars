@@ -1,6 +1,6 @@
-import numpy as np
-import itertools
-from scipy.optimize import linear_sum_assignment
+# import numpy as np
+# import itertools
+# from scipy.optimize import linear_sum_assignment
 
 
 # def emd_distance(cost_matrix):

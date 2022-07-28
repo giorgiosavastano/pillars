@@ -68,6 +68,18 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
 
     #[pyfn(m)]
+    fn euclidean_rdist<'py>(
+            py: Python<'py>,
+            x: PyReadonlyArray2<'py, f64>,
+            y: PyReadonlyArray2<'py, f64>,
+    ) -> &'py PyArray2<f64> {
+            let x = x.as_array();
+            let y = y.as_array();
+            let z = euclidean_rdist_rust(x, y);
+            z.into_pyarray(py)
+    }
+
+    #[pyfn(m)]
     fn compute_emd<'py>(
             x: PyReadonlyArray2<'py, f64>,
             y: PyReadonlyArray2<'py, f64>,

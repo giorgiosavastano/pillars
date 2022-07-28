@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
-from pillars import compute_emd, emd_classify, emd_classify_bulk
+from pillars import euclidean_rdist, compute_emd, emd_classify, emd_classify_bulk
 
 def compute_earth_mover_dist(first, second):
     """
@@ -22,6 +22,13 @@ def compute_earth_mover_dist(first, second):
     emd_val = d[row_ind, col_ind].sum()
     return emd_val
 
+
+def test_rdist_against_scipy():
+    rng = np.random.default_rng()
+    imgs_test = rng.random((2, 17, 11))
+    expected = cdist(imgs_test[0], imgs_test[1])
+    actual = euclidean_rdist(imgs_test[0], imgs_test[1])
+    assert np.allclose(expected, actual, rtol=1e-17)
 
 def test_emd_against_scipy():
     rng = np.random.default_rng()
