@@ -7,7 +7,7 @@ use ordered_float::OrderedFloat;
 use pyo3::{pymodule, types::PyModule, PyResult, Python};
 
 #[pymodule]
-fn pyllars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
+fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
     fn argsort<T: Ord>(data: &[T]) -> Vec<usize> {
         let mut indices = (0..data.len()).collect::<Vec<_>>();
@@ -68,16 +68,14 @@ fn pyllars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
 
 
     #[pyfn(m)]
-    fn emd_bulk<'py>(
-            py: Python<'py>,
+    fn compute_emd<'py>(
             x: PyReadonlyArray2<'py, f64>,
-            y: PyReadonlyArray3<'py, f64>,
-    ) -> &'py PyArray1<f64> {
+            y: PyReadonlyArray2<'py, f64>,
+    ) -> f64 {
             let x = x.as_array();
             let y = y.as_array();
-            let z = compute_emd_bulk(x, y);
-            let c = z.mapv(|elem| f64::from(elem));
-            c.into_pyarray(py)
+            let z = emd_dist_serial(x, y);
+            f64::from(z)
     }
 
     #[pyfn(m)]
