@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
-from pillars import euclidean_rdist, euclidean_rdist_parallel, compute_emd, emd_classify, emd_classify_bulk
+from pillars import euclidean_rdist, euclidean_rdist_parallel, compute_emd, emd_classify, emd_classify_bulk, get_ddms_at_indices_parallel
 
 def compute_earth_mover_dist(first, second):
     """
@@ -52,3 +52,11 @@ def test_emd_classify_bulk():
 	imgs_markers = rng.random((1000, 17, 11))
 	emd_classes = emd_classify_bulk(imgs_to_classify, imgs_markers, 10)
 	assert(emd_classes.shape==(imgs_to_classify.shape[0], 10))
+
+def test_netcdf_ddms_indices():
+
+    path = "/Users/sysadmin/Develop/hrsm/error_propagation/data/L1B/gbrRCS/v01.01/2022/04/07/spire_gnss-r_L1B_gbrRCS_v01.01_2022-04-07T00-03-03_FM147_E19_E1_CA_antmask1.nc"
+    indices = np.arange(0, 20, 2, dtype=np.uint64)
+    ddms = get_ddms_at_indices_parallel(path, indices)
+
+    assert(ddms.shape==(len(indices), 9, 5))
