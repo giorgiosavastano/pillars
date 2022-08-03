@@ -1,5 +1,6 @@
 import numpy as np
-from netCDF4 import Dataset
+
+# from netCDF4 import Dataset
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 
@@ -9,8 +10,8 @@ from pillars import (
     emd_classify_bulk,
     euclidean_rdist,
     euclidean_rdist_parallel,
-    get_ddms_at_indices_parallel,
-    get_ddms_at_indices_serial,
+    # get_ddms_at_indices_parallel,
+    # get_ddms_at_indices_serial,
 )
 
 
@@ -68,18 +69,18 @@ def test_emd_classify_bulk():
     assert emd_classes.shape == (imgs_to_classify.shape[0], 10)
 
 
-def test_netcdf_ddms_indices():
-    root = "/Users/sysadmin/Develop/hrsm/error_propagation/data/"
-    prod = "L1B/gbrRCS/v01.01/2022/04/07/"
-    file = "test_file.nc"
-    path = f"{root}{prod}{file}"
-    var_name = "power_reflect"
-    indices = np.arange(0, 20, 2, dtype=np.uint64)
-    ddms_par = get_ddms_at_indices_parallel(path, var_name, indices)
-    ddms_ser = get_ddms_at_indices_serial(path, var_name, indices)
-    file_nc = Dataset(path, "r")
-    ddms_power = file_nc.variables["power_reflect"][:, :, :]
-    ddms_power = ddms_power[indices, :, :]
-    assert ddms_par.shape == (len(indices), 9, 5)
-    assert np.all(ddms_par == ddms_ser)
-    assert np.all(ddms_power == ddms_ser)
+# def test_netcdf_ddms_indices():
+#     root = "/Users/sysadmin/Develop/hrsm/error_propagation/data/"
+#     prod = "L1B/gbrRCS/v01.01/2022/04/07/"
+#     file = "test_file.nc"
+#     path = f"{root}{prod}{file}"
+#     var_name = "power_reflect"
+#     indices = np.arange(0, 20, 2, dtype=np.uint64)
+#     ddms_par = get_ddms_at_indices_parallel(path, var_name, indices)
+#     ddms_ser = get_ddms_at_indices_serial(path, var_name, indices)
+#     file_nc = Dataset(path, "r")
+#     ddms_power = file_nc.variables["power_reflect"][:, :, :]
+#     ddms_power = ddms_power[indices, :, :]
+#     assert ddms_par.shape == (len(indices), 9, 5)
+#     assert np.all(ddms_par == ddms_ser)
+#     assert np.all(ddms_power == ddms_ser)
