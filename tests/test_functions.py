@@ -69,15 +69,12 @@ def test_emd_classify_bulk():
 
 
 # def test_netcdf_ddms_indices():
-#     root = "/Users/sysadmin/Develop/hrsm/error_propagation/data/"
-#     prod = "L1B/gbrRCS/v01.01/2022/04/07/"
-#     file = "test_file.nc"
-#     path = f"{root}{prod}{file}"
+#     path = "test_file.nc"
 #     var_name = "power_reflect"
 #     indices = np.arange(0, 20, 2, dtype=np.uint64)
 #     ddms_ser = get_ddms_at_indices(path, var_name, indices)
 #     file_nc = Dataset(path, "r")
 #     ddms_power = file_nc.variables["power_reflect"][:, :, :]
 #     ddms_power = ddms_power[indices, :, :]
-#     assert ddms_par.shape == (len(indices), 9, 5)
+#     assert ddms_ser.shape == (len(indices), 9, 5)
 #     assert np.all(ddms_power == ddms_ser)
