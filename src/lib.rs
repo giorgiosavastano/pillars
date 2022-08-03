@@ -1,4 +1,6 @@
-use numpy::{IntoPyArray, PyArray1, PyArray2, PyArray3, PyReadonlyArray1, PyReadonlyArray2, PyReadonlyArray3};
+use numpy::{
+    IntoPyArray, PyArray1, PyArray2, PyArray3, PyReadonlyArray1, PyReadonlyArray2, PyReadonlyArray3,
+};
 use pyo3::{pymodule, types::PyModule, PyResult, Python};
 
 mod emd_classification;
@@ -6,17 +8,16 @@ mod netcdf_utils;
 
 #[pymodule]
 fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
-
     #[pyfn(m)]
     fn euclidean_rdist<'py>(
-            py: Python<'py>,
-            x: PyReadonlyArray2<'py, f64>,
-            y: PyReadonlyArray2<'py, f64>,
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+        y: PyReadonlyArray2<'py, f64>,
     ) -> &'py PyArray2<f64> {
-            let x = x.as_array();
-            let y = y.as_array();
-            let z = emd_classification::euclidean_rdist_rust(x, y);
-            z.into_pyarray(py)
+        let x = x.as_array();
+        let y = y.as_array();
+        let z = emd_classification::euclidean_rdist_rust(x, y);
+        z.into_pyarray(py)
     }
 
     #[pyfn(m)]
@@ -24,48 +25,45 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         py: Python<'py>,
         x: PyReadonlyArray2<'py, f64>,
         y: PyReadonlyArray2<'py, f64>,
-) -> &'py PyArray2<f64> {
+    ) -> &'py PyArray2<f64> {
         let x = x.as_array();
         let y = y.as_array();
         let z = emd_classification::euclidean_rdist_par(x, y);
         z.into_pyarray(py)
-}
+    }
 
     #[pyfn(m)]
-    fn compute_emd<'py>(
-            x: PyReadonlyArray2<'py, f64>,
-            y: PyReadonlyArray2<'py, f64>,
-    ) -> f64 {
-            let x = x.as_array();
-            let y = y.as_array();
-            let z = emd_classification::emd_dist_serial(x, y);
-            f64::from(z)
+    fn compute_emd<'py>(x: PyReadonlyArray2<'py, f64>, y: PyReadonlyArray2<'py, f64>) -> f64 {
+        let x = x.as_array();
+        let y = y.as_array();
+        let z = emd_classification::emd_dist_serial(x, y);
+        f64::from(z)
     }
 
     #[pyfn(m)]
     fn emd_classify<'py>(
-            py: Python<'py>,
-            x: PyReadonlyArray2<'py, f64>,
-            y: PyReadonlyArray3<'py, f64>,
-            n: usize,
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+        y: PyReadonlyArray3<'py, f64>,
+        n: usize,
     ) -> &'py PyArray1<usize> {
-            let x = x.as_array();
-            let y = y.as_array();
-            let z = emd_classification::classify_closest_n(x, y, n);
-            z.into_pyarray(py)
+        let x = x.as_array();
+        let y = y.as_array();
+        let z = emd_classification::classify_closest_n(x, y, n);
+        z.into_pyarray(py)
     }
 
     #[pyfn(m)]
     fn emd_classify_bulk<'py>(
-            py: Python<'py>,
-            x: PyReadonlyArray3<'py, f64>,
-            y: PyReadonlyArray3<'py, f64>,
-            n: usize,
+        py: Python<'py>,
+        x: PyReadonlyArray3<'py, f64>,
+        y: PyReadonlyArray3<'py, f64>,
+        n: usize,
     ) -> &'py PyArray2<usize> {
-            let x = x.as_array();
-            let y = y.as_array();
-            let z = emd_classification::classify_closest_n_bulk(x, y, n);
-            z.into_pyarray(py)
+        let x = x.as_array();
+        let y = y.as_array();
+        let z = emd_classification::classify_closest_n_bulk(x, y, n);
+        z.into_pyarray(py)
     }
 
     #[pyfn(m)]
