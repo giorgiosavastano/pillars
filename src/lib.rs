@@ -67,19 +67,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     }
 
     #[pyfn(m)]
-    fn get_ddms_at_indices_parallel<'py>(
-        py: Python<'py>,
-        path: std::path::PathBuf,
-        var_name: String,
-        x: PyReadonlyArray1<'py, usize>,
-    ) -> &'py PyArray3<f64> {
-        let x = x.as_array();
-        let ddms = netcdf_utils::get_ddms_at_indices_par(&path, &var_name, x);
-        ddms.into_pyarray(py)
-    }
-
-    #[pyfn(m)]
-    fn get_ddms_at_indices_serial<'py>(
+    fn get_ddms_at_indices<'py>(
         py: Python<'py>,
         path: std::path::PathBuf,
         var_name: String,

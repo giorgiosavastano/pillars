@@ -10,8 +10,7 @@ from pillars import (
     emd_classify_bulk,
     euclidean_rdist,
     euclidean_rdist_parallel,
-    # get_ddms_at_indices_parallel,
-    # get_ddms_at_indices_serial,
+    # get_ddms_at_indices,
 )
 
 
@@ -76,11 +75,9 @@ def test_emd_classify_bulk():
 #     path = f"{root}{prod}{file}"
 #     var_name = "power_reflect"
 #     indices = np.arange(0, 20, 2, dtype=np.uint64)
-#     ddms_par = get_ddms_at_indices_parallel(path, var_name, indices)
-#     ddms_ser = get_ddms_at_indices_serial(path, var_name, indices)
+#     ddms_ser = get_ddms_at_indices(path, var_name, indices)
 #     file_nc = Dataset(path, "r")
 #     ddms_power = file_nc.variables["power_reflect"][:, :, :]
 #     ddms_power = ddms_power[indices, :, :]
 #     assert ddms_par.shape == (len(indices), 9, 5)
-#     assert np.all(ddms_par == ddms_ser)
 #     assert np.all(ddms_power == ddms_ser)
