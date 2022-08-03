@@ -1,7 +1,15 @@
 import numpy as np
 from scipy.spatial.distance import cdist
+from netCDF4 import Dataset
 from scipy.optimize import linear_sum_assignment
-from pillars import euclidean_rdist, euclidean_rdist_parallel, compute_emd, emd_classify, emd_classify_bulk, get_ddms_at_indices_parallel
+from pillars import (
+    euclidean_rdist,
+    euclidean_rdist_parallel,
+    compute_emd, emd_classify,
+    emd_classify_bulk,
+    get_ddms_at_indices_parallel,
+    get_ddms_at_indices_serial,
+)
 
 def compute_earth_mover_dist(first, second):
     """
@@ -54,9 +62,14 @@ def test_emd_classify_bulk():
 	assert(emd_classes.shape==(imgs_to_classify.shape[0], 10))
 
 def test_netcdf_ddms_indices():
-
     path = "/Users/sysadmin/Develop/hrsm/error_propagation/data/L1B/gbrRCS/v01.01/2022/04/07/spire_gnss-r_L1B_gbrRCS_v01.01_2022-04-07T00-03-03_FM147_E19_E1_CA_antmask1.nc"
+    var_name = "power_reflect"
     indices = np.arange(0, 20, 2, dtype=np.uint64)
-    ddms = get_ddms_at_indices_parallel(path, indices)
-
-    assert(ddms.shape==(len(indices), 9, 5))
+    ddms_par = get_ddms_at_indices_parallel(path, var_name, indices)
+    ddms_ser = get_ddms_at_indices_serial(path, var_name, indices)
+    file_nc = Dataset(path, "r")
+    ddms_power = file_nc.variables["power_reflect"][:, :, :]
+    ddms_power = ddms_power[indices, :, :]
+    assert(ddms_par.shape==(len(indices), 9, 5))
+    assert(np.all(ddms_par==ddms_ser))
+    assert(np.all(ddms_power==ddms_ser))
