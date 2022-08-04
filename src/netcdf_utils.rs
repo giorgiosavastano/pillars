@@ -3,13 +3,18 @@ use std::path::PathBuf;
 
 pub fn get_ddms_at_indices_ser(
     path: &PathBuf,
-    variable_name: &String,
+    variable_name: String,
     indices: ArrayView1<usize>,
-) -> Array3<f64> {
-    let file = netcdf::open(path).expect("Failed to open file");
-    let var = &file
-        .variable(variable_name)
-        .expect("Failed to find variable name");
+) -> Result<Array3<f64>, netcdf::error::Error> {
+    let file = netcdf::open(path)?;
+
+    let var = &file.variable(&variable_name);
+
+    let var = match var {
+        None => return Err(netcdf::error::Error::NotFound(variable_name)),
+        Some(variable) => variable,
+    };
+
     let mut res = Array3::<f64>::zeros((indices.len(), 9, 5));
     Zip::from(res.axis_iter_mut(Axis(0)))
         .and(&indices)
@@ -21,5 +26,5 @@ pub fn get_ddms_at_indices_ser(
                     .expect("Failed to reshape ndarray"),
             )
         });
-    res
+    Ok(res)
 }

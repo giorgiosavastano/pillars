@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 # from netCDF4 import Dataset
 from scipy.optimize import linear_sum_assignment
@@ -10,7 +11,7 @@ from pillars import (
     emd_classify_bulk,
     euclidean_rdist,
     euclidean_rdist_parallel,
-    # get_ddms_at_indices,
+    get_ddms_at_indices,
 )
 
 
@@ -66,6 +67,14 @@ def test_emd_classify_bulk():
     imgs_markers = rng.random((1000, 17, 11))
     emd_classes = emd_classify_bulk(imgs_to_classify, imgs_markers, 10)
     assert emd_classes.shape == (imgs_to_classify.shape[0], 10)
+
+
+def test_netcdf_ddms_indices_error_propagation():
+    path = "test_file.nc"
+    var_name = "power_reflect"
+    indices = np.arange(0, 20, 2, dtype=np.uint64)
+    with pytest.raises(IndexError):
+        get_ddms_at_indices(path, var_name, indices)
 
 
 # def test_netcdf_ddms_indices():

@@ -1,7 +1,7 @@
 use numpy::{
     IntoPyArray, PyArray1, PyArray2, PyArray3, PyReadonlyArray1, PyReadonlyArray2, PyReadonlyArray3,
 };
-use pyo3::{pymodule, types::PyModule, PyResult, Python};
+use pyo3::{exceptions, pymodule, types::PyModule, PyResult, Python};
 
 mod emd_classification;
 mod netcdf_utils;
@@ -72,10 +72,18 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         path: std::path::PathBuf,
         var_name: String,
         x: PyReadonlyArray1<'py, usize>,
-    ) -> &'py PyArray3<f64> {
+    ) -> PyResult<&'py PyArray3<f64>> {
         let x = x.as_array();
-        let ddms = netcdf_utils::get_ddms_at_indices_ser(&path, &var_name, x);
-        ddms.into_pyarray(py)
+        let ddms = netcdf_utils::get_ddms_at_indices_ser(&path, var_name, x);
+
+        let _ddms = match ddms {
+            Ok(ddms) => return Ok(ddms.into_pyarray(py)),
+            Err(_e) => {
+                return Err(exceptions::PyIndexError::new_err(
+                    "Failed to retrieve DDMs at given indices.",
+                ))
+            }
+        };
     }
 
     Ok(())
