@@ -47,7 +47,8 @@ pub fn euclidean_rdist_par(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Ar
 pub fn emd_dist_serial(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> OrderedFloat<f64> {
     let c = euclidean_rdist_rust(x, y);
     let costs = c.mapv(|elem| OrderedFloat::from(elem));
-    let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec()).unwrap();
+    let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec())
+        .expect("Failed to convert vec to Matrix");
     let (emd_dist, _assignments) = kuhn_munkres_min(&weights);
     emd_dist
 }
@@ -81,4 +82,26 @@ pub fn classify_closest_n_bulk(
         .and(x.axis_iter(Axis(0)))
         .par_for_each(|mut c, mat_x| c += &classify_closest_n(mat_x, y, n));
     c
+}
+
+#[cfg(test)]
+mod emd_classification_tests {
+    use super::*;
+
+    #[test]
+    fn argsort_test() {
+        let a = Array1::from_vec(vec![100.125, 6.5489, 6.5488, 0.00, 77777.777]);
+        let b = a.mapv(|elem| OrderedFloat::<f64>::from(elem));
+        let c = argsort(&b.to_vec());
+
+        assert_eq!(c, &[3, 2, 1, 0, 4]);
+    }
+
+    #[test]
+    fn euclidean_rdist_rust_test() {
+        let a = Array2::<f64>::zeros((1, 5));
+        let b = Array2::<f64>::zeros((1, 5));
+        let c = euclidean_rdist_rust(a.view(), b.view());
+        assert_eq!(c.shape(), &[1, 1]);
+    }
 }
