@@ -73,10 +73,11 @@ def test_netcdf_ddms_indices_error_propagation():
     path = "test_file.nc"
     var_name = "power_reflect"
     indices = np.arange(0, 20, 2, dtype=np.uint64)
-    with pytest.raises(IndexError):
+    with pytest.raises(FileNotFoundError):
         get_ddms_at_indices(path, var_name, indices)
 
 
+# TODO: add test tile
 # def test_netcdf_ddms_indices():
 #     path = "test_file.nc"
 #     var_name = "power_reflect"

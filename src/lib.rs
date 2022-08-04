@@ -79,7 +79,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         let _ddms = match ddms {
             Ok(ddms) => return Ok(ddms.into_pyarray(py)),
             Err(_e) => {
-                return Err(exceptions::PyIndexError::new_err(
+                return Err(exceptions::PyFileNotFoundError::new_err(
                     "Failed to retrieve DDMs at given indices.",
                 ))
             }
