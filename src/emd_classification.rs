@@ -63,7 +63,10 @@ pub fn emd_dist_serial(
     Ok(emd_dist)
 }
 
-fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Result<Array1<OrderedFloat<f64>>, MatrixFormatError> {
+fn compute_emd_bulk(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView3<'_, f64>,
+) -> Result<Array1<OrderedFloat<f64>>, MatrixFormatError> {
     let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
     Zip::from(&mut c)
         .and(y.axis_iter(Axis(0)))
@@ -80,7 +83,7 @@ pub fn classify_closest_n(
     x: ArrayView2<'_, f64>,
     y: ArrayView3<'_, f64>,
     n: usize,
-) -> Result<Array1<usize>, MatrixFormatError>  {
+) -> Result<Array1<usize>, MatrixFormatError> {
     let c = compute_emd_bulk(x, y);
     let res = argsort(&c?.to_vec());
     assert!(n < res.len());
