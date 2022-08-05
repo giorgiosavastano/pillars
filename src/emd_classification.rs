@@ -44,7 +44,10 @@ pub fn euclidean_rdist_par(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Ar
     c
 }
 
-pub fn emd_dist_serial(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Result<OrderedFloat<f64>, MatrixFormatError> {
+pub fn emd_dist_serial(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView2<'_, f64>,
+) -> Result<OrderedFloat<f64>, MatrixFormatError> {
     let c = euclidean_rdist_rust(x, y);
     let costs = c.mapv(|elem| OrderedFloat::from(elem));
     let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec())?;
@@ -52,7 +55,10 @@ pub fn emd_dist_serial(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Result
     Ok(emd_dist)
 }
 
-fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Result<Array1<OrderedFloat<f64>>, MatrixFormatError> {
+fn compute_emd_bulk(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView3<'_, f64>,
+) -> Result<Array1<OrderedFloat<f64>>, MatrixFormatError> {
     let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
     Zip::from(&mut c)
         .and(y.axis_iter(Axis(0)))
@@ -64,7 +70,7 @@ pub fn classify_closest_n(
     x: ArrayView2<'_, f64>,
     y: ArrayView3<'_, f64>,
     n: usize,
-) -> Result<Array1<usize>, MatrixFormatError>  {
+) -> Result<Array1<usize>, MatrixFormatError> {
     let c = compute_emd_bulk(x, y);
     let res = argsort(&c?.to_vec());
     assert!(n < res.len());

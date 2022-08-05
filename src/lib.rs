@@ -33,7 +33,10 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     }
 
     #[pyfn(m)]
-    fn compute_emd<'py>(x: PyReadonlyArray2<'py, f64>, y: PyReadonlyArray2<'py, f64>) -> PyResult<f64> {
+    fn compute_emd<'py>(
+        x: PyReadonlyArray2<'py, f64>,
+        y: PyReadonlyArray2<'py, f64>,
+    ) -> PyResult<f64> {
         let x = x.as_array();
         let y = y.as_array();
         let z = emd_classification::emd_dist_serial(x, y);
