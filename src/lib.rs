@@ -57,19 +57,11 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         x: PyReadonlyArray2<'py, f64>,
         y: PyReadonlyArray3<'py, f64>,
         n: usize,
-    ) -> PyResult<&'py PyArray1<usize>> {
+    ) -> &'py PyArray1<usize> {
         let x = x.as_array();
         let y = y.as_array();
         let z = emd_classification::classify_closest_n(x, y, n);
-
-        let _z = match z {
-            Ok(z) => return Ok(z.into_pyarray(py)),
-            Err(_e) => {
-                return Err(exceptions::PyTypeError::new_err(
-                    "Failed to compute EMD distance.",
-                ))
-            }
-        };
+        z.into_pyarray(py)
     }
 
     #[pyfn(m)]
@@ -78,18 +70,11 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         x: PyReadonlyArray3<'py, f64>,
         y: PyReadonlyArray3<'py, f64>,
         n: usize,
-    ) -> PyResult<&'py PyArray2<usize>> {
+    ) -> &'py PyArray2<usize> {
         let x = x.as_array();
         let y = y.as_array();
         let z = emd_classification::classify_closest_n_bulk(x, y, n);
-        let _z = match z {
-            Ok(z) => return Ok(z.into_pyarray(py)),
-            Err(_e) => {
-                return Err(exceptions::PyTypeError::new_err(
-                    "Failed to compute EMD distance.",
-                ))
-            }
-        };
+        z.into_pyarray(py)
     }
 
     #[pyfn(m)]
