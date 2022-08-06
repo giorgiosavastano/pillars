@@ -63,10 +63,7 @@ pub fn emd_dist_serial(
     Ok(emd_dist)
 }
 
-fn compute_emd_bulk(
-    x: ArrayView2<'_, f64>,
-    y: ArrayView3<'_, f64>,
-) -> Array1<OrderedFloat<f64>> {
+fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array1<OrderedFloat<f64>> {
     let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
     Zip::from(&mut c)
         .and(y.axis_iter(Axis(0)))
