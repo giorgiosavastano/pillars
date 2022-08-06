@@ -66,7 +66,7 @@ pub fn emd_dist_serial(
 fn compute_emd_bulk(
     x: ArrayView2<'_, f64>,
     y: ArrayView3<'_, f64>,
-) -> Result<Array1<OrderedFloat<f64>>, MatrixFormatError> {
+) -> Array1<OrderedFloat<f64>> {
     let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
     Zip::from(&mut c)
         .and(y.axis_iter(Axis(0)))
@@ -83,23 +83,23 @@ pub fn classify_closest_n(
     x: ArrayView2<'_, f64>,
     y: ArrayView3<'_, f64>,
     n: usize,
-) -> Result<Array1<usize>, MatrixFormatError> {
+) -> Array1<usize> {
     let c = compute_emd_bulk(x, y);
-    let res = argsort(&c?.to_vec());
+    let res = argsort(&c.to_vec());
     assert!(n < res.len());
-    unsafe { Ok(Array::from_vec(res.get_unchecked(0..n).to_vec())) }
+    unsafe { Array::from_vec(res.get_unchecked(0..n).to_vec()) }
 }
 
 pub fn classify_closest_n_bulk(
     x: ArrayView3<'_, f64>,
     y: ArrayView3<'_, f64>,
     n: usize,
-) -> Result<Array2<usize>, MatrixFormatError> {
+) -> Array2<usize> {
     let mut c = Array2::<usize>::zeros((x.shape()[0], n));
     Zip::from(c.rows_mut())
         .and(x.axis_iter(Axis(0)))
-        .par_for_each(|mut c, mat_x| c += &classify_closest_n(mat_x, y, n).unwrap());
-    Ok(c)
+        .par_for_each(|mut c, mat_x| c += &classify_closest_n(mat_x, y, n));
+    c
 }
 
 #[cfg(test)]
