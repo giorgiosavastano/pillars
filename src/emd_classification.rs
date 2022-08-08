@@ -3,7 +3,7 @@ use ndarray::Zip;
 use ordered_float::OrderedFloat;
 use pathfinding::prelude::{kuhn_munkres_min, Matrix, MatrixFormatError};
 
-const BAD_VALUE: f64 = 999999.999999;
+const BAD_VALUE: f64 = f64::INFINITY;
 
 fn argsort<T: Ord>(data: &[T]) -> Vec<usize> {
     let mut indices = (0..data.len()).collect::<Vec<_>>();
@@ -62,7 +62,8 @@ fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array1<Or
     Zip::from(&mut c)
         .and(y.axis_iter(Axis(0)))
         .for_each(|c, mat_y| {
-            *c = emd_dist_serial(mat_y, x).unwrap_or_else(|_e| {
+            *c = emd_dist_serial(mat_y, x).unwrap_or_else(|err| {
+                println!("BAD_VALUE due to: {}", err);
                 return OrderedFloat::from(BAD_VALUE);
             })
         });
