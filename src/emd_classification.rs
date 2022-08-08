@@ -21,6 +21,8 @@ fn euclidean_distance(v1: &ArrayView1<f64>, v2: &ArrayView1<f64>) -> f64 {
         .sqrt()
 }
 
+/// Compute Euclidean distance between two 2-D data tensors (e.g., images).
+///
 pub fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
     let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
     for i in 0..x.nrows() {
@@ -38,6 +40,8 @@ fn euclidean_rdist_row(x: &ArrayView1<'_, f64>, y: &ArrayView2<'_, f64>) -> Arra
     z
 }
 
+/// Parallel computation of Euclidean distance between two 2-D data tensors (e.g., images)
+///
 pub fn euclidean_rdist_par(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
     let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
     Zip::from(x.rows())
@@ -46,6 +50,8 @@ pub fn euclidean_rdist_par(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Ar
     c
 }
 
+/// Compute Earth Movers Distance (EMD) between two 2-D data tensors (e.g., images).
+///
 pub fn emd_dist_serial(
     x: ArrayView2<'_, f64>,
     y: ArrayView2<'_, f64>,

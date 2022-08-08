@@ -1,10 +1,19 @@
+//! # Pillars
+//!
+//! `pillars` is a collection of algorithms implemented in Python and Rust.
+//!
+//! ## Highlights
+//!
+//! - Computation of EMD distance
+//!
+
 use numpy::{
     IntoPyArray, PyArray1, PyArray2, PyArray3, PyReadonlyArray1, PyReadonlyArray2, PyReadonlyArray3,
 };
 use pyo3::{exceptions, pymodule, types::PyModule, PyResult, Python};
 
-mod emd_classification;
-mod netcdf_utils;
+pub mod emd_classification;
+pub mod netcdf_utils;
 
 #[pymodule]
 fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
