@@ -5,7 +5,7 @@ pub fn get_ddms_at_indices_ser(
     path: &PathBuf,
     variable_name: String,
     indices: ArrayView1<usize>,
-) -> Result<Array3<f64>, netcdf::error::Error> {
+) -> netcdf::error::Result<Array3<f64>> {
     let file = netcdf::open(path)?;
 
     let var = &file.variable(&variable_name);

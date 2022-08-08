@@ -1,7 +1,9 @@
 use ndarray::prelude::*;
 use ndarray::Zip;
 use ordered_float::OrderedFloat;
-use pathfinding::prelude::{kuhn_munkres_min, Matrix};
+use pathfinding::prelude::{kuhn_munkres_min, Matrix, MatrixFormatError};
+
+const BAD_VALUE: f64 = f64::INFINITY;
 
 fn argsort<T: Ord>(data: &[T]) -> Vec<usize> {
     let mut indices = (0..data.len()).collect::<Vec<_>>();
@@ -19,6 +21,8 @@ fn euclidean_distance(v1: &ArrayView1<f64>, v2: &ArrayView1<f64>) -> f64 {
         .sqrt()
 }
 
+/// Compute Euclidean distance between two 2-D data tensors (e.g., images).
+///
 pub fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
     let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
     for i in 0..x.nrows() {
@@ -36,6 +40,8 @@ fn euclidean_rdist_row(x: &ArrayView1<'_, f64>, y: &ArrayView2<'_, f64>) -> Arra
     z
 }
 
+/// Parallel computation of Euclidean distance between two 2-D data tensors (e.g., images)
+///
 pub fn euclidean_rdist_par(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
     let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
     Zip::from(x.rows())
@@ -44,20 +50,29 @@ pub fn euclidean_rdist_par(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Ar
     c
 }
 
-pub fn emd_dist_serial(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> OrderedFloat<f64> {
+/// Compute Earth Movers Distance (EMD) between two 2-D data tensors (e.g., images).
+///
+pub fn emd_dist_serial(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView2<'_, f64>,
+) -> Result<OrderedFloat<f64>, MatrixFormatError> {
     let c = euclidean_rdist_rust(x, y);
     let costs = c.mapv(|elem| OrderedFloat::from(elem));
-    let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec())
-        .expect("Failed to convert vec to Matrix");
+    let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec())?;
     let (emd_dist, _assignments) = kuhn_munkres_min(&weights);
-    emd_dist
+    Ok(emd_dist)
 }
 
 fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array1<OrderedFloat<f64>> {
     let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
     Zip::from(&mut c)
         .and(y.axis_iter(Axis(0)))
-        .for_each(|c, mat_y| *c = emd_dist_serial(mat_y, x));
+        .for_each(|c, mat_y| {
+            *c = emd_dist_serial(mat_y, x).unwrap_or_else(|err| {
+                println!("BAD_VALUE due to: {}", err);
+                return OrderedFloat::from(BAD_VALUE);
+            })
+        });
     c
 }
 
