@@ -11,7 +11,6 @@ from pillars import (
     emd_classify_bulk,
     euclidean_rdist,
     euclidean_rdist_parallel,
-    get_ddms_at_indices,
 )
 
 
@@ -69,12 +68,12 @@ def test_emd_classify_bulk():
     assert emd_classes.shape == (imgs_to_classify.shape[0], 10)
 
 
-def test_netcdf_ddms_indices_error_propagation():
-    path = "test_file.nc"
-    var_name = "power_reflect"
-    indices = np.arange(0, 20, 2, dtype=np.uint64)
-    with pytest.raises(FileNotFoundError):
-        get_ddms_at_indices(path, var_name, indices)
+# def test_netcdf_ddms_indices_error_propagation():
+#     path = "test_file.nc"
+#     var_name = "power_reflect"
+#     indices = np.arange(0, 20, 2, dtype=np.uint64)
+#     with pytest.raises(FileNotFoundError):
+#         get_ddms_at_indices(path, var_name, indices)
 
 
 # TODO: add test tile
