@@ -8,12 +8,12 @@
 //!
 
 use numpy::{
-    IntoPyArray, PyArray1, PyArray2, PyArray3, PyReadonlyArray1, PyReadonlyArray2, PyReadonlyArray3,
+    IntoPyArray, PyArray1, PyArray2, PyReadonlyArray2, PyReadonlyArray3,
 };
 use pyo3::{exceptions, pymodule, types::PyModule, PyResult, Python};
 
-pub mod emd_classification;
-pub mod netcdf_utils;
+mod emd_classification;
+// mod netcdf_utils;
 
 #[pymodule]
 fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
@@ -86,25 +86,25 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         z.into_pyarray(py)
     }
 
-    #[pyfn(m)]
-    fn get_ddms_at_indices<'py>(
-        py: Python<'py>,
-        path: std::path::PathBuf,
-        var_name: String,
-        x: PyReadonlyArray1<'py, usize>,
-    ) -> PyResult<&'py PyArray3<f64>> {
-        let x = x.as_array();
-        let ddms = netcdf_utils::get_ddms_at_indices_ser(&path, var_name, x);
+    // #[pyfn(m)]
+    // fn get_ddms_at_indices<'py>(
+    //     py: Python<'py>,
+    //     path: std::path::PathBuf,
+    //     var_name: String,
+    //     x: PyReadonlyArray1<'py, usize>,
+    // ) -> PyResult<&'py PyArray3<f64>> {
+    //     let x = x.as_array();
+    //     let ddms = netcdf_utils::get_ddms_at_indices_ser(&path, var_name, x);
 
-        let _ddms = match ddms {
-            Ok(ddms) => return Ok(ddms.into_pyarray(py)),
-            Err(_e) => {
-                return Err(exceptions::PyFileNotFoundError::new_err(
-                    "Failed to retrieve DDMs at given indices.",
-                ))
-            }
-        };
-    }
+    //     let _ddms = match ddms {
+    //         Ok(ddms) => return Ok(ddms.into_pyarray(py)),
+    //         Err(_e) => {
+    //             return Err(exceptions::PyFileNotFoundError::new_err(
+    //                 "Failed to retrieve DDMs at given indices.",
+    //             ))
+    //         }
+    //     };
+    // }
 
     Ok(())
 }
