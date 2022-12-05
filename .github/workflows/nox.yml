@@ -1,0 +1,2 @@
+- name: Setup Nox
+  uses: daisylb/setup-nox@v2.1.0
