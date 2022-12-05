@@ -1,2 +1,14 @@
-- name: Setup Nox
-  uses: daisylb/setup-nox@v2.1.0
+name: Setup Nox
+
+on:
+  push:
+  pull_request:
+  
+  
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: excitedleigh/setup-nox@v2.0.0
+    - run: nox
