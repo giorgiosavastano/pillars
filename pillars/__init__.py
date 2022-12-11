@@ -27,6 +27,17 @@ __all__ = [
 def compute_euclidean_distance(
     xa: np.ndarray, xb: np.ndarray, parallel: typing.Optional[bool] = True
 ) -> np.ndarray:
+    """Compute Euclidean distance matrix between 2D arrays
+
+    Args:
+        xa (np.ndarray): 2D array
+        xb (np.ndarray): 2D array
+        parallel (typing.Optional[bool], optional): Parallel flag.
+        Defaults to True.
+
+    Returns:
+        np.ndarray: Euclidea distance matrix
+    """
     if parallel:
         return euclidean_rdist_parallel(xa, xb)
     else:
@@ -36,6 +47,20 @@ def compute_euclidean_distance(
 def compute_earth_movers_distance_2d(
     xa: np.ndarray, xb: np.ndarray, parallel: typing.Optional[bool] = True
 ) -> np.ndarray:
+    """Compute Earth Movers Distance between 2D arrays
+
+    Args:
+        xa (np.ndarray): First array. It can be 2D or 3D.
+        xb (np.ndarray): Second array. It can be 2D or 3D.
+        parallel (typing.Optional[bool], optional): Parallel Flag.
+        Defaults to True.
+
+    Raises:
+        ValueError: If shape of input array is not correct.
+
+    Returns:
+        np.ndarray: _description_
+    """
 
     if len(xa.shape) == len(xb.shape) == 2:
         return np.asarray(compute_emd(xa, xb), dtype=float)

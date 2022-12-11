@@ -64,24 +64,3 @@ def test_emd_classify_bulk():
     imgs_markers = rng.random((1000, 17, 11))
     emd_classes = emd_classify_bulk(imgs_to_classify, imgs_markers, 10)
     assert emd_classes.shape == (imgs_to_classify.shape[0], 10)
-
-
-# def test_netcdf_ddms_indices_error_propagation():
-#     path = "test_file.nc"
-#     var_name = "power_reflect"
-#     indices = np.arange(0, 20, 2, dtype=np.uint64)
-#     with pytest.raises(FileNotFoundError):
-#         get_ddms_at_indices(path, var_name, indices)
-
-
-# TODO: add test tile
-# def test_netcdf_ddms_indices():
-#     path = "test_file.nc"
-#     var_name = "power_reflect"
-#     indices = np.arange(0, 20, 2, dtype=np.uint64)
-#     ddms_ser = get_ddms_at_indices(path, var_name, indices)
-#     file_nc = Dataset(path, "r")
-#     ddms_power = file_nc.variables["power_reflect"][:, :, :]
-#     ddms_power = ddms_power[indices, :, :]
-#     assert ddms_ser.shape == (len(indices), 9, 5)
-#     assert np.all(ddms_power == ddms_ser)
