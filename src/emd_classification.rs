@@ -35,12 +35,10 @@ fn euclidean_distance(v1: &ArrayView1<f64>, v2: &ArrayView1<f64>) -> f64 {
 //     c
 // }
 
-
 fn euclidean_rdist_row(x: &ArrayView1<'_, f64>, y: &ArrayView2<'_, f64>) -> Array1<f64> {
     let z = Zip::from(y.rows()).map_collect(|row| euclidean_distance(&row, &x));
     z
 }
-
 
 /// Computation of Euclidean distance between two 2-D data tensors (e.g., images)
 ///
@@ -75,7 +73,10 @@ pub fn compute_emd_between_2dtensors(
     Ok(emd_dist)
 }
 
-pub fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array1<OrderedFloat<f64>> {
+pub fn compute_emd_bulk(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView3<'_, f64>,
+) -> Array1<OrderedFloat<f64>> {
     let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
     Zip::from(&mut c)
         .and(y.axis_iter(Axis(0)))
@@ -88,7 +89,10 @@ pub fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array
     c
 }
 
-pub fn compute_emd_bulk_par(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array1<OrderedFloat<f64>> {
+pub fn compute_emd_bulk_par(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView3<'_, f64>,
+) -> Array1<OrderedFloat<f64>> {
     let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
     Zip::from(&mut c)
         .and(y.axis_iter(Axis(0)))

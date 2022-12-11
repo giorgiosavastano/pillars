@@ -66,7 +66,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         py: Python<'py>,
         x: PyReadonlyArray2<'py, f64>,
         y: PyReadonlyArray3<'py, f64>,
-    ) -> &'py PyArray1<f64>  {
+    ) -> &'py PyArray1<f64> {
         let x = x.as_array();
         let y = y.as_array();
         let z = emd_classification::compute_emd_bulk(x, y);
@@ -79,7 +79,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         py: Python<'py>,
         x: PyReadonlyArray2<'py, f64>,
         y: PyReadonlyArray3<'py, f64>,
-    ) -> &'py PyArray1<f64>  {
+    ) -> &'py PyArray1<f64> {
         let x = x.as_array();
         let y = y.as_array();
         let z = emd_classification::compute_emd_bulk_par(x, y);
@@ -126,7 +126,6 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         let z = matching::find_topk_with_tolerance(x, y, tolerance, topk);
         z.into_pyarray(py)
     }
-
 
     // #[pyfn(m)]
     // fn get_ddms_at_indices<'py>(

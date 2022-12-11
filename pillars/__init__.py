@@ -24,14 +24,18 @@ __all__ = [
 ]
 
 
-def compute_euclidean_distance(xa: np.ndarray, xb: np.ndarray, parallel: typing.Optional[bool] = True) -> np.ndarray:
+def compute_euclidean_distance(
+    xa: np.ndarray, xb: np.ndarray, parallel: typing.Optional[bool] = True
+) -> np.ndarray:
     if parallel:
         return euclidean_rdist_parallel(xa, xb)
     else:
         return euclidean_rdist(xa, xb)
 
 
-def compute_earth_movers_distance_2d(xa: np.ndarray, xb: np.ndarray, parallel: typing.Optional[bool] = True) -> np.ndarray:
+def compute_earth_movers_distance_2d(
+    xa: np.ndarray, xb: np.ndarray, parallel: typing.Optional[bool] = True
+) -> np.ndarray:
 
     if len(xa.shape) == len(xb.shape) == 2:
         return np.asarray(compute_emd(xa, xb), dtype=float)
@@ -50,4 +54,3 @@ def compute_earth_movers_distance_2d(xa: np.ndarray, xb: np.ndarray, parallel: t
 
     else:
         raise ValueError("Dimensions of input arrays is not supported.")
-    

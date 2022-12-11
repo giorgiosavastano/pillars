@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 # from netCDF4 import Dataset
 from scipy.optimize import linear_sum_assignment
