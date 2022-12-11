@@ -8,11 +8,12 @@
 //!
 
 use numpy::{
-    IntoPyArray, PyArray1, PyArray2, PyReadonlyArray2, PyReadonlyArray3,
+    IntoPyArray, PyArray1, PyArray2, PyReadonlyArray1, PyReadonlyArray2, PyReadonlyArray3,
 };
 use pyo3::{exceptions, pymodule, types::PyModule, PyResult, Python};
 
 mod emd_classification;
+mod matching;
 // mod netcdf_utils;
 
 #[pymodule]
@@ -48,7 +49,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     ) -> PyResult<f64> {
         let x = x.as_array();
         let y = y.as_array();
-        let z = emd_classification::emd_dist_serial(x, y);
+        let z = emd_classification::compute_emd_between_2dtensors(x, y);
 
         let _z = match z {
             Ok(z) => return Ok(f64::from(z)),
@@ -58,6 +59,32 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
                 ))
             }
         };
+    }
+
+    #[pyfn(m)]
+    fn compute_emd_bulk<'py>(
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+        y: PyReadonlyArray3<'py, f64>,
+    ) -> &'py PyArray1<f64> {
+        let x = x.as_array();
+        let y = y.as_array();
+        let z = emd_classification::compute_emd_bulk(x, y);
+        let z = z.mapv(|el| f64::from(el));
+        z.into_pyarray(py)
+    }
+
+    #[pyfn(m)]
+    fn compute_emd_bulk_par<'py>(
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+        y: PyReadonlyArray3<'py, f64>,
+    ) -> &'py PyArray1<f64> {
+        let x = x.as_array();
+        let y = y.as_array();
+        let z = emd_classification::compute_emd_bulk_par(x, y);
+        let z = z.mapv(|el| f64::from(el));
+        z.into_pyarray(py)
     }
 
     #[pyfn(m)]
@@ -83,6 +110,20 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         let x = x.as_array();
         let y = y.as_array();
         let z = emd_classification::classify_closest_n_bulk(x, y, n);
+        z.into_pyarray(py)
+    }
+
+    #[pyfn(m)]
+    fn find_topk_with_tolerance<'py>(
+        py: Python<'py>,
+        x: PyReadonlyArray1<'py, f64>,
+        y: PyReadonlyArray1<'py, f64>,
+        tolerance: f64,
+        topk: usize,
+    ) -> &'py PyArray2<i32> {
+        let x = x.as_array();
+        let y = y.as_array();
+        let z = matching::find_topk_with_tolerance(x, y, tolerance, topk);
         z.into_pyarray(py)
     }
 

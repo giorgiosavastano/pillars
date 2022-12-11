@@ -23,21 +23,31 @@ fn euclidean_distance(v1: &ArrayView1<f64>, v2: &ArrayView1<f64>) -> f64 {
 
 /// Compute Euclidean distance between two 2-D data tensors (e.g., images).
 ///
-pub fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
-    let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
-    for i in 0..x.nrows() {
-        for j in 0..y.nrows() {
-            unsafe {
-                *c.uget_mut([i, j]) = euclidean_distance(&x.row(i), &y.row(j));
-            }
-        }
-    }
-    c
-}
+// pub fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
+//     let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
+//     for i in 0..x.nrows() {
+//         for j in 0..y.nrows() {
+//             unsafe {
+//                 *c.uget_mut([i, j]) = euclidean_distance(&x.row(i), &y.row(j));
+//             }
+//         }
+//     }
+//     c
+// }
 
 fn euclidean_rdist_row(x: &ArrayView1<'_, f64>, y: &ArrayView2<'_, f64>) -> Array1<f64> {
     let z = Zip::from(y.rows()).map_collect(|row| euclidean_distance(&row, &x));
     z
+}
+
+/// Computation of Euclidean distance between two 2-D data tensors (e.g., images)
+///
+pub fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
+    let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
+    Zip::from(x.rows())
+        .and(c.rows_mut())
+        .for_each(|row_x, mut row_c| row_c.assign(&euclidean_rdist_row(&row_x, &y)));
+    c
 }
 
 /// Parallel computation of Euclidean distance between two 2-D data tensors (e.g., images)
@@ -52,7 +62,7 @@ pub fn euclidean_rdist_par(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Ar
 
 /// Compute Earth Movers Distance (EMD) between two 2-D data tensors (e.g., images).
 ///
-pub fn emd_dist_serial(
+pub fn compute_emd_between_2dtensors(
     x: ArrayView2<'_, f64>,
     y: ArrayView2<'_, f64>,
 ) -> Result<OrderedFloat<f64>, MatrixFormatError> {
@@ -63,12 +73,31 @@ pub fn emd_dist_serial(
     Ok(emd_dist)
 }
 
-fn compute_emd_bulk(x: ArrayView2<'_, f64>, y: ArrayView3<'_, f64>) -> Array1<OrderedFloat<f64>> {
+pub fn compute_emd_bulk(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView3<'_, f64>,
+) -> Array1<OrderedFloat<f64>> {
     let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
     Zip::from(&mut c)
         .and(y.axis_iter(Axis(0)))
         .for_each(|c, mat_y| {
-            *c = emd_dist_serial(mat_y, x).unwrap_or_else(|err| {
+            *c = compute_emd_between_2dtensors(mat_y, x).unwrap_or_else(|err| {
+                println!("BAD_VALUE due to: {}", err);
+                return OrderedFloat::from(BAD_VALUE);
+            })
+        });
+    c
+}
+
+pub fn compute_emd_bulk_par(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView3<'_, f64>,
+) -> Array1<OrderedFloat<f64>> {
+    let mut c = Array1::<OrderedFloat<f64>>::zeros(y.shape()[0]);
+    Zip::from(&mut c)
+        .and(y.axis_iter(Axis(0)))
+        .par_for_each(|c, mat_y| {
+            *c = compute_emd_between_2dtensors(mat_y, x).unwrap_or_else(|err| {
                 println!("BAD_VALUE due to: {}", err);
                 return OrderedFloat::from(BAD_VALUE);
             })
