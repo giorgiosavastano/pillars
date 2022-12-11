@@ -49,7 +49,7 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
     ) -> PyResult<f64> {
         let x = x.as_array();
         let y = y.as_array();
-        let z = emd_classification::emd_dist_serial(x, y);
+        let z = emd_classification::compute_emd_between_2dtensors(x, y);
 
         let _z = match z {
             Ok(z) => return Ok(f64::from(z)),
@@ -59,6 +59,32 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
                 ))
             }
         };
+    }
+
+    #[pyfn(m)]
+    fn compute_emd_bulk<'py>(
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+        y: PyReadonlyArray3<'py, f64>,
+    ) -> &'py PyArray1<f64>  {
+        let x = x.as_array();
+        let y = y.as_array();
+        let z = emd_classification::compute_emd_bulk(x, y);
+        let z = z.mapv(|el| f64::from(el));
+        z.into_pyarray(py)
+    }
+
+    #[pyfn(m)]
+    fn compute_emd_bulk_par<'py>(
+        py: Python<'py>,
+        x: PyReadonlyArray2<'py, f64>,
+        y: PyReadonlyArray3<'py, f64>,
+    ) -> &'py PyArray1<f64>  {
+        let x = x.as_array();
+        let y = y.as_array();
+        let z = emd_classification::compute_emd_bulk_par(x, y);
+        let z = z.mapv(|el| f64::from(el));
+        z.into_pyarray(py)
     }
 
     #[pyfn(m)]
