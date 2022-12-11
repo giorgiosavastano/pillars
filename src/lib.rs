@@ -8,11 +8,12 @@
 //!
 
 use numpy::{
-    IntoPyArray, PyArray1, PyArray2, PyReadonlyArray2, PyReadonlyArray3,
+    IntoPyArray, PyArray1, PyArray2, PyReadonlyArray1, PyReadonlyArray2, PyReadonlyArray3,
 };
 use pyo3::{exceptions, pymodule, types::PyModule, PyResult, Python};
 
 mod emd_classification;
+mod matching;
 // mod netcdf_utils;
 
 #[pymodule]
@@ -85,6 +86,21 @@ fn pillars(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
         let z = emd_classification::classify_closest_n_bulk(x, y, n);
         z.into_pyarray(py)
     }
+
+    #[pyfn(m)]
+    fn find_topk_with_tolerance<'py>(
+        py: Python<'py>,
+        x: PyReadonlyArray1<'py, f64>,
+        y: PyReadonlyArray1<'py, f64>,
+        tolerance: f64,
+        topk: usize,
+    ) -> &'py PyArray2<i32> {
+        let x = x.as_array();
+        let y = y.as_array();
+        let z = matching::find_topk_with_tolerance(x, y, tolerance, topk);
+        z.into_pyarray(py)
+    }
+
 
     // #[pyfn(m)]
     // fn get_ddms_at_indices<'py>(

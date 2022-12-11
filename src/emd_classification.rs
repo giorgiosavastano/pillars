@@ -23,21 +23,33 @@ fn euclidean_distance(v1: &ArrayView1<f64>, v2: &ArrayView1<f64>) -> f64 {
 
 /// Compute Euclidean distance between two 2-D data tensors (e.g., images).
 ///
-pub fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
-    let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
-    for i in 0..x.nrows() {
-        for j in 0..y.nrows() {
-            unsafe {
-                *c.uget_mut([i, j]) = euclidean_distance(&x.row(i), &y.row(j));
-            }
-        }
-    }
-    c
-}
+// pub fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
+//     let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
+//     for i in 0..x.nrows() {
+//         for j in 0..y.nrows() {
+//             unsafe {
+//                 *c.uget_mut([i, j]) = euclidean_distance(&x.row(i), &y.row(j));
+//             }
+//         }
+//     }
+//     c
+// }
+
 
 fn euclidean_rdist_row(x: &ArrayView1<'_, f64>, y: &ArrayView2<'_, f64>) -> Array1<f64> {
     let z = Zip::from(y.rows()).map_collect(|row| euclidean_distance(&row, &x));
     z
+}
+
+
+/// Computation of Euclidean distance between two 2-D data tensors (e.g., images)
+///
+pub fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
+    let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
+    Zip::from(x.rows())
+        .and(c.rows_mut())
+        .for_each(|row_x, mut row_c| row_c.assign(&euclidean_rdist_row(&row_x, &y)));
+    c
 }
 
 /// Parallel computation of Euclidean distance between two 2-D data tensors (e.g., images)
