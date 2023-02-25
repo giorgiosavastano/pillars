@@ -4,7 +4,6 @@ use pyo3::prelude::*;
 
 mod core;
 
-pub type Triplet<'py, T, U> = (&'py PyArray1<T>, &'py PyArray1<T>, &'py PyArray1<U>);
 pub type Quadruplet<'py, T> = (
     &'py PyArray1<T>,
     &'py PyArray1<T>,
@@ -14,45 +13,6 @@ pub type Quadruplet<'py, T> = (
 
 #[pymodule]
 pub fn pixel_wise_matching(_py: Python<'_>, m: &PyModule) -> PyResult<()> {
-    macro_rules! pixel_wise_matching {
-        ($name:ident, $t:ty, $u:ty, $v:ty) => {
-            #[pyfunction]
-            fn $name<'py>(
-                py: Python<'py>,
-                matching_array_left: PyReadonlyArray3<'py, $t>,
-                differencing_array_left: PyReadonlyArray3<'py, $u>,
-                matching_array_right: PyReadonlyArray3<'py, $t>,
-                differencing_array_right: PyReadonlyArray3<'py, $u>,
-                tol_match: $v,
-                invalid: $t,
-            ) -> PyResult<Triplet<'py, $t, $u>> {
-                let matching_array_left = matching_array_left.as_array();
-                let differencing_array_left = differencing_array_left.as_array();
-                let matching_array_right = matching_array_right.as_array();
-                let differencing_array_right = differencing_array_right.as_array();
-                let (time_left, time_right, vals_out) = py
-                    .allow_threads(|| {
-                        core::pixel_wise_matching_with_tol(
-                            &matching_array_left,
-                            &differencing_array_left,
-                            &matching_array_right,
-                            &differencing_array_right,
-                            tol_match,
-                            invalid,
-                        )
-                    })
-                    .map_err(|err| map_py_err(err.into()))?;
-                Ok((
-                    time_left.into_pyarray(py),
-                    time_right.into_pyarray(py),
-                    vals_out.into_pyarray(py),
-                ))
-            }
-
-            m.add_function(wrap_pyfunction!($name, m)?)?;
-        };
-    }
-
     macro_rules! pixel_wise_matching_indexes {
         ($name:ident, $t:ty, $v:ty) => {
             #[pyfunction]
