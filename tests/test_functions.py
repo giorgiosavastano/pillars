@@ -4,7 +4,7 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 
-from pillars import (
+from pillars.emd_distance import (
     emd_classify,
     emd_classify_bulk,
     compute_euclidean_distance,
