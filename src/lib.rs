@@ -26,7 +26,8 @@ fn euclidean_rdist<'py>(
     let y = y.as_array();
     let z = emd_classification::euclidean_rdist_rust(x, y);
 
-    z.into_pyarray_bound(py)
+    let res = z.mapv(|elem| elem.into_inner());
+    res.into_pyarray_bound(py)
 }
 
 #[pyfunction]
@@ -38,7 +39,8 @@ fn euclidean_rdist_parallel<'py>(
     let x = x.as_array();
     let y = y.as_array();
     let z = emd_classification::euclidean_rdist_par(x, y);
-    z.into_pyarray_bound(py)
+    let res = z.mapv(|elem| elem.into_inner());
+    res.into_pyarray_bound(py)
 }
 
 #[pyfunction]
@@ -46,6 +48,23 @@ fn compute_emd<'py>(x: PyReadonlyArray2<'py, f64>, y: PyReadonlyArray2<'py, f64>
     let x = x.as_array();
     let y = y.as_array();
     let z = emd_classification::compute_emd_between_2dtensors(x, y);
+
+    match z {
+        Ok(z) => Ok(*z),
+        Err(_e) => Err(exceptions::PyTypeError::new_err(
+            "Failed to compute EMD distance.",
+        )),
+    }
+}
+
+#[pyfunction]
+fn compute_emd_parallel<'py>(
+    x: PyReadonlyArray2<'py, f64>,
+    y: PyReadonlyArray2<'py, f64>,
+) -> PyResult<f64> {
+    let x = x.as_array();
+    let y = y.as_array();
+    let z = emd_classification::compute_emd_between_2dtensors_par(x, y);
 
     match z {
         Ok(z) => Ok(*z),
@@ -127,6 +146,7 @@ fn pillars(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(euclidean_rdist, m)?)?;
     m.add_function(wrap_pyfunction!(euclidean_rdist_parallel, m)?)?;
     m.add_function(wrap_pyfunction!(compute_emd, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_emd_parallel, m)?)?;
     m.add_function(wrap_pyfunction!(compute_emd_bulk, m)?)?;
     m.add_function(wrap_pyfunction!(compute_emd_bulk_par, m)?)?;
     m.add_function(wrap_pyfunction!(emd_classify, m)?)?;

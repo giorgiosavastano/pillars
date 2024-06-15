@@ -32,7 +32,7 @@ fn argsort<T: Ord>(data: &[T]) -> Vec<usize> {
 fn euclidean_distance(v1: &ArrayView1<f64>, v2: &ArrayView1<f64>) -> f64 {
     v1.iter()
         .zip(v2.iter())
-        .map(|(x, y)| (x - y).powi(2))
+        .map(|(&x, &y)| (x - y).powi(2))
         .sum::<f64>()
         .sqrt()
 }
@@ -45,8 +45,11 @@ fn euclidean_distance(v1: &ArrayView1<f64>, v2: &ArrayView1<f64>) -> f64 {
 ///
 /// # Returns
 /// A 1-dimensional array containing distances from `x` to each row in `y`.
-fn euclidean_rdist_row(x: &ArrayView1<'_, f64>, y: &ArrayView2<'_, f64>) -> Array1<f64> {
-    Zip::from(y.rows()).map_collect(|row| euclidean_distance(&row, &x))
+fn euclidean_rdist_row(
+    x: &ArrayView1<'_, f64>,
+    y: &ArrayView2<'_, f64>,
+) -> Array1<OrderedFloat<f64>> {
+    Zip::from(y.rows()).map_collect(|row| OrderedFloat::from(euclidean_distance(&row, &x)))
 }
 
 /// Computes the Euclidean distances between rows of two 2-dimensional data arrays synchronously.
@@ -57,8 +60,11 @@ fn euclidean_rdist_row(x: &ArrayView1<'_, f64>, y: &ArrayView2<'_, f64>) -> Arra
 ///
 /// # Returns
 /// A 2-dimensional array where each element `(i, j)` is the distance between row `i` of `x` and row `j` of `y`.
-pub fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
-    let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
+pub fn euclidean_rdist_rust(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView2<'_, f64>,
+) -> Array2<OrderedFloat<f64>> {
+    let mut c = Array2::<OrderedFloat<f64>>::zeros((x.nrows(), y.nrows()));
     Zip::from(x.rows())
         .and(c.rows_mut())
         .for_each(|row_x, mut row_c| row_c.assign(&euclidean_rdist_row(&row_x, &y)));
@@ -73,8 +79,11 @@ pub fn euclidean_rdist_rust(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> A
 ///
 /// # Returns
 /// A 2-dimensional array where each element `(i, j)` is the distance between row `i` of `x` and row `j` of `y`.
-pub fn euclidean_rdist_par(x: ArrayView2<'_, f64>, y: ArrayView2<'_, f64>) -> Array2<f64> {
-    let mut c = Array2::<f64>::zeros((x.nrows(), y.nrows()));
+pub fn euclidean_rdist_par(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView2<'_, f64>,
+) -> Array2<OrderedFloat<f64>> {
+    let mut c = Array2::<OrderedFloat<f64>>::zeros((x.nrows(), y.nrows()));
     Zip::from(x.rows())
         .and(c.rows_mut())
         .par_for_each(|row_x, mut row_c| row_c.assign(&euclidean_rdist_row(&row_x, &y)));
@@ -93,8 +102,25 @@ pub fn compute_emd_between_2dtensors(
     x: ArrayView2<'_, f64>,
     y: ArrayView2<'_, f64>,
 ) -> Result<OrderedFloat<f64>, MatrixFormatError> {
-    let c = euclidean_rdist_rust(x, y);
-    let costs = c.mapv(|elem| OrderedFloat::from(elem));
+    let costs = euclidean_rdist_rust(x, y);
+    let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec())?;
+    let (emd_dist, _assignments) = kuhn_munkres_min(&weights);
+    Ok(emd_dist)
+}
+
+/// Computes the Earth Movers Distance (EMD) between two 2-dimensional data tensors.
+///
+/// # Arguments
+/// * `x` - A 2-dimensional view of f64 data tensors.
+/// * `y` - A 2-dimensional view of f64 data tensors.
+///
+/// # Returns
+/// A result containing the EMD as `OrderedFloat<f64>` or an error of type `MatrixFormatError`.
+pub fn compute_emd_between_2dtensors_par(
+    x: ArrayView2<'_, f64>,
+    y: ArrayView2<'_, f64>,
+) -> Result<OrderedFloat<f64>, MatrixFormatError> {
+    let costs = euclidean_rdist_par(x, y);
     let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec())?;
     let (emd_dist, _assignments) = kuhn_munkres_min(&weights);
     Ok(emd_dist)

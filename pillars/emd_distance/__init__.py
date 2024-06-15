@@ -3,6 +3,7 @@ import typing
 
 from pillars import (
     compute_emd,
+    compute_emd_parallel,
     compute_emd_bulk,
     compute_emd_bulk_par,
     emd_classify,
@@ -51,7 +52,10 @@ def compute_earth_movers_distance_2d(
     """
 
     if len(xa.shape) == len(xb.shape) == 2:
-        return np.asarray(compute_emd(xa, xb), dtype=float)
+        if parallel:
+            return compute_emd_parallel(xa, xb)
+        else:
+            return compute_emd(xa, xb)
 
     elif len(xa.shape) == 2 and len(xb.shape) == 3:
         if parallel:
