@@ -50,7 +50,7 @@ fn compute_emd<'py>(x: PyReadonlyArray2<'py, f64>, y: PyReadonlyArray2<'py, f64>
     let z = emd_classification::compute_emd_between_2dtensors(x, y);
 
     match z {
-        Ok(z) => Ok(*z),
+        Ok(z) => Ok(z.into_inner()),
         Err(e) => Err(exceptions::PyTypeError::new_err(format!(
             "Failed to compute EMD distance: {}",
             e
@@ -68,7 +68,7 @@ fn compute_emd_parallel<'py>(
     let z = emd_classification::compute_emd_between_2dtensors_par(x, y);
 
     match z {
-        Ok(z) => Ok(*z),
+        Ok(z) => Ok(z.into_inner()),
         Err(e) => Err(exceptions::PyTypeError::new_err(format!(
             "Failed to compute EMD distance: {}",
             e
