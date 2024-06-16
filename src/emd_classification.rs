@@ -27,13 +27,19 @@ fn argsort<T: Ord>(data: &[T]) -> Vec<usize> {
 /// * `v1` - A 1-dimensional view of f64 data.
 /// * `v2` - A 1-dimensional view of f64 data.
 ///
+/// # Panics
+/// Panics if the input arrays `v1` and `v2` have different lengths.
+///
 /// # Returns
 /// The Euclidean distance as a floating-point number.
 fn euclidean_distance(v1: &ArrayView1<f64>, v2: &ArrayView1<f64>) -> f64 {
-    v1.iter()
-        .zip(v2.iter())
-        .map(|(&x, &y)| (x - y).powi(2))
-        .sum::<f64>()
+    if v1.len() != v2.len() {
+        panic!("Input arrays must have the same length");
+    }
+    Zip::from(v1)
+        .and(v2)
+        .map_collect(|&x, &y| (x - y).powi(2))
+        .sum()
         .sqrt()
 }
 
@@ -49,6 +55,9 @@ fn euclidean_rdist_row(
     x: &ArrayView1<'_, f64>,
     y: &ArrayView2<'_, f64>,
 ) -> Array1<OrderedFloat<f64>> {
+    if x.is_empty() || y.is_empty() {
+        panic!("Input arrays must not be empty");
+    }
     Zip::from(y.rows()).map_collect(|row| OrderedFloat::from(euclidean_distance(&row, &x)))
 }
 
@@ -104,7 +113,7 @@ pub fn compute_emd_between_2dtensors(
 ) -> Result<OrderedFloat<f64>, MatrixFormatError> {
     let costs = euclidean_rdist_rust(x, y);
     let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec())?;
-    let (emd_dist, _assignments) = kuhn_munkres_min(&weights);
+    let (emd_dist, _) = kuhn_munkres_min(&weights);
     Ok(emd_dist)
 }
 
@@ -122,7 +131,7 @@ pub fn compute_emd_between_2dtensors_par(
 ) -> Result<OrderedFloat<f64>, MatrixFormatError> {
     let costs = euclidean_rdist_par(x, y);
     let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec())?;
-    let (emd_dist, _assignments) = kuhn_munkres_min(&weights);
+    let (emd_dist, _) = kuhn_munkres_min(&weights);
     Ok(emd_dist)
 }
 

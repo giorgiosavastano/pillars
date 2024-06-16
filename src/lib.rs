@@ -51,9 +51,10 @@ fn compute_emd<'py>(x: PyReadonlyArray2<'py, f64>, y: PyReadonlyArray2<'py, f64>
 
     match z {
         Ok(z) => Ok(*z),
-        Err(_e) => Err(exceptions::PyTypeError::new_err(
-            "Failed to compute EMD distance.",
-        )),
+        Err(e) => Err(exceptions::PyTypeError::new_err(format!(
+            "Failed to compute EMD distance: {}",
+            e
+        ))),
     }
 }
 
@@ -68,9 +69,10 @@ fn compute_emd_parallel<'py>(
 
     match z {
         Ok(z) => Ok(*z),
-        Err(_e) => Err(exceptions::PyTypeError::new_err(
-            "Failed to compute EMD distance.",
-        )),
+        Err(e) => Err(exceptions::PyTypeError::new_err(format!(
+            "Failed to compute EMD distance: {}",
+            e
+        ))),
     }
 }
 
