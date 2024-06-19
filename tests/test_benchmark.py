@@ -24,6 +24,12 @@ def setup_data():
 def test_rust_emd_benchmark(benchmark):
     """Benchmark the Rust-backed EMD calculation."""
     data1, data2 = setup_data()
+    benchmark(compute_earth_movers_distance_2d, data1, data2, False)
+
+
+def test_rust_emd_par_benchmark(benchmark):
+    """Benchmark the Rust-backed EMD calculation."""
+    data1, data2 = setup_data()
     benchmark(compute_earth_movers_distance_2d, data1, data2, True)
 
 

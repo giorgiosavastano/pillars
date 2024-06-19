@@ -38,7 +38,7 @@ fn euclidean_rdist_parallel<'py>(
 ) -> Bound<'py, PyArray2<f64>> {
     let x = x.as_array();
     let y = y.as_array();
-    let z = emd_classification::euclidean_rdist_par(x, y);
+    let z = emd_classification::euclidean_rdist_rust_par(x, y);
     let res = z.mapv(|elem| elem.into_inner());
     res.into_pyarray_bound(py)
 }
