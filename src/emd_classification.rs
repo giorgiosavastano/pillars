@@ -109,8 +109,18 @@ pub fn compute_emd_between_2dtensors(
     x: ArrayView2<'_, f64>,
     y: ArrayView2<'_, f64>,
 ) -> Result<OrderedFloat<f64>, MatrixFormatError> {
-    let costs = euclidean_rdist_rust(x, y);
-    let weights = Matrix::from_vec(costs.nrows(), costs.ncols(), costs.into_raw_vec())?;
+    let x_rows = x.nrows();
+    let y_rows = y.nrows();
+
+    let mut costs = Vec::with_capacity(x_rows * y_rows);
+
+    for row_x in x.rows() {
+        for row_y in y.rows() {
+            let dist = euclidean_distance(&row_x, &row_y);
+            costs.push(OrderedFloat::from(dist));
+        }
+    }
+    let weights = Matrix::from_vec(x_rows, y_rows, costs)?;
     let (emd_dist, _) = kuhn_munkres_min(&weights);
     Ok(emd_dist)
 }
